@@ -18,11 +18,29 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try{
         const postCollection = client.db('mediaBook').collection('postCollection')
+        const aboutCollection = client.db('mediaBook').collection('aboutCollection')
 
         app.get('/post', async(req, res) => {
             const query = {}
             const options = await postCollection.find(query).toArray()
             res.send(options)
+        })
+
+        app.post('/aboutModal', async(req, res) => {
+            const about = req.body;
+            console.log(about)
+            const filter = {}
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    name: about.name,
+                    email: about.email,
+                    university: about.university,
+                    address: about.address
+                }
+            }
+            const result = await aboutCollection.updateOne(filter, updatedDoc, options)
+            res.send(result)
         })
     }
     finally{
